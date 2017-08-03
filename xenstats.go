@@ -239,6 +239,17 @@ func (s Xenstats) createPoolMetrics() (metrics []*prometheus.GaugeVec, err error
 	for _, elem := range hosts {
 		nameLabel, err := s.xend.GetSpecificValue("pool.get_name_label", elem.Ref)
 
+		if err != nil {
+			return metrics, fmt.Errorf("XEN Api Error: %v", err)
+		}
+
+		if nameLabel == nil {
+			nameLabel, err = s.xend.GetSpecificValue("pool.get_uuid", elem.Ref)
+			if err != nil {
+				return metrics, fmt.Errorf("XEN Api Error: %v", err)
+			}
+		}
+
 		ha_enabled, err := s.xend.GetSpecificValue("pool.get_ha_enabled", elem.Ref)
 		if err != nil {
 			return metrics, fmt.Errorf("XEN Api Error: %v", err)
